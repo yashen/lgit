@@ -1,17 +1,17 @@
 {
-    "name": "ugit",
-    "version": "1.0.0",
-    "description": "Unified management git libraries",
+    "name": "lgit",
+    "version": "1.0.1",
+    "description": "Organization of local git repositories",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "bin": {
-        "ugit": "./bin/ugit"
+        "lgit": "./bin/lgit"
     },
     "files": [
         "index.js",
-        "bin/ugit"
+        "bin/lgit"
     ],
     "author": "yashen <yashen@gmail.com>",
     "maintainers": [
@@ -20,6 +20,7 @@
             "email": "yashen@gmail.com"
         }
     ],
+    "respository": "https://github.com/yashen/lgit.git",
     "license": "ISC",
     "dependencies": {
         "commander": "*"

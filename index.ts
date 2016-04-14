@@ -7,7 +7,7 @@ import * as os from 'os';
 
 let clone = commander.command('clone <url>');
 
-let rootPath = path.join(os.homedir(), '.ugit');
+let rootPath = path.join(os.homedir(), '.lgit');
 ensureDir(rootPath);
 let namesRoot = path.join(rootPath, "names");
 ensureDir(namesRoot);

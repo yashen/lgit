@@ -5,7 +5,7 @@ var path = require('path');
 var fs = require('fs');
 var os = require('os');
 var clone = commander.command('clone <url>');
-var rootPath = path.join(os.homedir(), '.ugit');
+var rootPath = path.join(os.homedir(), '.lgit');
 ensureDir(rootPath);
 var namesRoot = path.join(rootPath, "names");
 ensureDir(namesRoot);
