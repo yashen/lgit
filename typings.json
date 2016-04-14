@@ -1,0 +1,8 @@
+{
+  "name": "ugit",
+  "dependencies": {},
+  "devDependencies": {},
+  "ambientDependencies": {
+    "commander": "github:DefinitelyTyped/DefinitelyTyped/commander/commander.d.ts#7de6c3dd94feaeb21f20054b9f30d5dabc5efabd"
+  }
+}

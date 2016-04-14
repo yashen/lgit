@@ -1,0 +1,27 @@
+{
+    "name": "ugit",
+    "version": "1.0.0",
+    "description": "Unified management git libraries",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "bin": {
+        "ugit": "./bin/ugit"
+    },
+    "files": [
+        "index.js",
+        "bin/ugit"
+    ],
+    "author": "yashen <yashen@gmail.com>",
+    "maintainers": [
+        {
+            "name": "yashen",
+            "email": "yashen@gmail.com"
+        }
+    ],
+    "license": "ISC",
+    "dependencies": {
+        "commander": "*"
+    }
+}
