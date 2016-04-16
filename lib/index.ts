@@ -51,17 +51,18 @@ add.action(function(path) {
 });
 
 open.action(function(nameOrUrl) {
-    let isName = /^[^/]+$/.test(nameOrUrl);
-
-    if (!isName) {
+    let isUrl = util.GitUrlInfo.IsGitUrl(nameOrUrl);
+    let targetDir;
+    if (isUrl) {
         let urlInfo = new util.GitUrlInfo(nameOrUrl);
-        let targetDir = urlInfo.ensureTargetDir();
-        let term = process.env.COLORTERM || process.env.TERM;
-        child_process.spawn(term, [], {
-            cwd: targetDir,
-            detached: true
-        });
-        process.exit(0);
+        targetDir = urlInfo.ensureTargetDir();
+    }else{
+        targetDir = util.find(nameOrUrl);
+    }
+    if (targetDir) {
+        util.openTerm(targetDir);
+    }else{
+        console.log(`Not found ${nameOrUrl}`);
     }
 
 });

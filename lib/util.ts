@@ -16,10 +16,24 @@ module util {
         return rootPath;
     }
 
+    export function find(name: string): string {
+        var rootPath = ensoureRootPath();
+        var parentFolder = path.join(rootPath, "byNames");
+        ensureDir(parentFolder);
+        var nameFolder = path.join(parentFolder, name);
+        if (fs.existsSync(nameFolder)) {
+            return nameFolder;
+        }
+    }
+
 
     export class GitUrlInfo {
-        static httpPattern = /^(http|https):\/\/([^/]+)\/([\w/.]+)\.git$/i;
-        static sshPatten = /^([^@]+)@([^:]+):([\w/.]+)\.git$/i;
+        static httpPattern = /^(http|https):\/\/([^/]+)\/(.+)\.git$/i;
+        static sshPatten = /^([^@]+)@([^:]+):(.+)\.git$/i;
+
+        static IsGitUrl(url: string) {
+            return GitUrlInfo.httpPattern.test(url) || GitUrlInfo.sshPatten.test(url);
+        }
 
         host: string;
         path: string;
@@ -80,29 +94,19 @@ module util {
         }
     }
 
-    export function syncExec(command: string, cwd = null, quiet = false): string {
-        var result = child_process.execSync(command, {
-            encoding: 'utf-8',
-            cwd: cwd
-        });
-        if (!quiet) {
-            console.log(result);
-        }
-        return result;
-    }
-
     export function getOriginUrl(path: string): Promise<string> {
-        let result = child_process.spawnSync('git', ['remote', '-v'], {
-            encoding: 'utf-8',
-            cwd: path
-        });
-        for (let item of result.stdout.split("\n")) {
-            if (item.slice(0, 6) == "origin") {
-                var parts = item.split("\t");
-                return Promise.resolve(parts[1].split(" ")[0]);
+        return exec('git', ['remote', '-v'], path)
+            .then(
+            (stdout) => {
+                for (let item of stdout.split("\n")) {
+                    if (item.slice(0, 6) == "origin") {
+                        var parts = item.split("\t");
+                        return Promise.resolve(parts[1].split(" ")[0]);
+                    }
+                }
+                return Promise.reject("Not find origin url");
             }
-        }
-        return Promise.reject("Not find origin url");
+            );
     }
 
     function __createLinkByName(info: GitUrlInfo) {
@@ -149,8 +153,8 @@ module util {
 
         return Promise.resolve(targetPath);
     }
-    
-    export function clone(url:string):Promise<string>{
+
+    export function clone(url: string): Promise<string> {
         let urlInfo = new GitUrlInfo(url);
         let parentPath = urlInfo.ensureParentDir();
         let targetPath = path.join(parentPath, urlInfo.name);
@@ -167,7 +171,7 @@ module util {
             return Promise.reject(result.error.message);
         }
         __createLinkByName(urlInfo);
-        return Promise.resolve(targetPath);        
+        return Promise.resolve(targetPath);
     }
 
     export function exec(command: string, args: string[], cwd: string): Promise<string> {
@@ -179,7 +183,16 @@ module util {
         if (result.status > 0) {
             return Promise.reject(result);
         }
-        return Promise.resolve(result.stdout);
+        return Promise.resolve(<string><any>result.stdout);
+    }
+
+    export function openTerm(cwd: string) {
+        let term = process.env.COLORTERM || process.env.TERM;
+        child_process.spawn(term, [], {
+            cwd: cwd,
+            detached: true
+        });
+        process.exit(0);
     }
 
 

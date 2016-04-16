@@ -1,6 +1,6 @@
 {
     "name": "lgit",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Organization of local git repositories",
     "main": "lib/index.js",
     "scripts": {
