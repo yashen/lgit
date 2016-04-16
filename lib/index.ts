@@ -7,6 +7,7 @@ import * as util from './util';
 
 let clone = commander.command('clone <url>');
 let add = commander.command("add [path]");
+let open = commander.command("open <name>");
 
 function ensureDir(dir: string) {
     if (!fs.existsSync(dir)) {
@@ -48,5 +49,22 @@ add.action(function(path) {
             console.log(reason.message || reason);
         });
 });
+
+open.action(function(nameOrUrl) {
+    let isName = /^[^/]+$/.test(nameOrUrl);
+
+    if (!isName) {
+        let urlInfo = new util.GitUrlInfo(nameOrUrl);
+        let targetDir = urlInfo.ensureTargetDir();
+        let term = process.env.COLORTERM || process.env.TERM;
+        child_process.spawn(term, [], {
+            cwd: targetDir,
+            detached: true
+        });
+        process.exit(0);
+    }
+
+});
+
 
 commander.parse(process.argv);
