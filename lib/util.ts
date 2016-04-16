@@ -1,6 +1,7 @@
 import * as child_process from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 
 module util {
     export function ensureDir(dir: string) {
@@ -9,7 +10,17 @@ module util {
         }
     }
 
+    function ensoureRootPath() {
+        let rootPath = path.join(os.homedir(), '.lgit');
+        util.ensureDir(rootPath);
+        return rootPath;
+    }
+
+
     export class GitUrlInfo {
+        static httpPattern = /^(http|https):\/\/([^/]+)\/([\w/.]+)\.git$/i;
+        static sshPatten = /^([^@]+)@([^:]+):([\w/.]+)\.git$/i;
+
         host: string;
         path: string;
         name: string;
@@ -17,18 +28,22 @@ module util {
         ssh: boolean;
         rootPath: string;
 
-        constructor(url: string, rootPath: string) {
+        constructor(url: string) {
             this.url = url;
-            this.rootPath = rootPath;
+            this.rootPath = ensoureRootPath();
 
-            if (this.url.slice(0, 4) == "http") {
-                this.parsehttp();
-            }
-            else {
-                this.parsessh();
+            var test = GitUrlInfo.httpPattern.test(this.url) || GitUrlInfo.sshPatten.test(this.url);
+
+            if (test) {
+                this.host = RegExp.$2;
+                let path = RegExp.$3;
+                let parts = path.split("/");
+                this.name = parts[parts.length - 1];
+                this.path = parts.slice(0, -1).join("_");
+            } else {
+                throw new Error(`${url} not be parsed`);
             }
         }
-
 
         ensureParentDir() {
             let hostPath = path.join(this.rootPath, this.host);
@@ -38,28 +53,15 @@ module util {
             return parentPath;
         }
 
-        parsessh() {
-            this.ssh = true;
-            let parts = this.url.split(":");
-            this.host = parts[0];
-            var rightParts = parts[1].split("/");
-            let name = rightParts[rightParts.length - 1];
-            if (name.slice(-4) == ".git") {
-                name = name.slice(0, -4);
-            }
-            this.name = name;
-            this.path = rightParts.slice(0, -1).join("/");
-        }
+        ensureTargetDir() {
+            let hostPath = path.join(this.rootPath, this.host);
+            let parentPath = path.join(hostPath, this.path);
+            let target = path.join(parentPath, this.name);
 
-        parsehttp() {
-            let parts = this.url.split("/");
-            let name = parts[parts.length - 1];
-            if (name.slice(-4) == ".git") {
-                name = name.slice(0, -4);
+            if (!fs.existsSync(target)) {
+                throw new Error(`${target} not existed`);
             }
-            this.name = name;
-            this.path = parts[parts.length - 2];
-            this.host = parts.slice(0, -2).join("|");
+            return target;
         }
     }
 
@@ -103,36 +105,81 @@ module util {
         return Promise.reject("Not find origin url");
     }
 
-    export function clone(url: string, localPath: string,rootPath:string) {
-        let urlInfo = new GitUrlInfo(url,rootPath);
+    function __createLinkByName(info: GitUrlInfo) {
+        var parentFolder = path.join(info.rootPath, "byNames");
+        ensureDir(parentFolder);
+        var nameFolder = path.join(parentFolder, info.name);
+        if (fs.existsSync(nameFolder)) {
+            return;
+        }
+        fs.symlinkSync(info.ensureTargetDir(), nameFolder, 'dir');
+        console.log(`create link ${nameFolder}`);
+    }
+
+    export function add(url: string, localPath: string): Promise<string> {
+        let urlInfo = new GitUrlInfo(url);
         let parentPath = urlInfo.ensureParentDir();
-        let targetPath = path.join(parentPath,urlInfo.name);
-        
-        if(fs.existsSync(targetPath)){
-            return Promise.reject(`folder [${targetPath}] has exited`);
+        let targetPath = path.join(parentPath, urlInfo.name);
+
+        if (fs.existsSync(targetPath)) {
+            return Promise.reject(`folder [${targetPath}] has existed`);
         }
 
-        localPath = path.resolve(localPath);        
-        let args = ['clone',localPath,urlInfo.name];
-        let result = child_process.spawnSync("git",args,{
-           encoding:'utf-8',
-           cwd:parentPath
+        localPath = path.resolve(localPath);
+        let args = ['clone', localPath, urlInfo.name];
+        let result = child_process.spawnSync("git", args, {
+            encoding: 'utf-8',
+            cwd: parentPath
         });
-        if(result.status > 0){
+        if (result.status > 0) {
             return Promise.reject(result.error.message);
         }
-        
-        let serUrlArgs = ['remote','set-url','origin',url];
-        let setUrlResult = child_process.spawnSync('git',serUrlArgs,{
-           encoding:'utf-8',
-           cwd:targetPath 
+
+        let serUrlArgs = ['remote', 'set-url', 'origin', url];
+        let setUrlResult = child_process.spawnSync('git', serUrlArgs, {
+            encoding: 'utf-8',
+            cwd: targetPath
         });
-        
-        if(setUrlResult.status>0){ 
-            return Promise.reject(setUrlResult.error.message);    
+
+        if (setUrlResult.status > 0) {
+            return Promise.reject(setUrlResult.error.message);
         }
-        
+
+        __createLinkByName(urlInfo);
+
         return Promise.resolve(targetPath);
+    }
+    
+    export function clone(url:string):Promise<string>{
+        let urlInfo = new GitUrlInfo(url);
+        let parentPath = urlInfo.ensureParentDir();
+        let targetPath = path.join(parentPath, urlInfo.name);
+
+        if (fs.existsSync(targetPath)) {
+            return Promise.reject(`folder [${targetPath}] has existed`);
+        }
+        let args = ['clone', url, urlInfo.name];
+        let result = child_process.spawnSync("git", args, {
+            encoding: 'utf-8',
+            cwd: parentPath
+        });
+        if (result.status > 0) {
+            return Promise.reject(result.error.message);
+        }
+        __createLinkByName(urlInfo);
+        return Promise.resolve(targetPath);        
+    }
+
+    export function exec(command: string, args: string[], cwd: string): Promise<string> {
+        var result = child_process.spawnSync(command, args, {
+            encoding: 'utf-8',
+            cwd: cwd
+        });
+
+        if (result.status > 0) {
+            return Promise.reject(result);
+        }
+        return Promise.resolve(result.stdout);
     }
 
 
