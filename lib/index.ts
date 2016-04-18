@@ -8,12 +8,27 @@ import * as util from './util';
 let clone = commander.command('clone <url>');
 let add = commander.command("add [path]");
 let open = commander.command("open <name>");
+let link = commander.command("link <name> [linkname]");
 
 function ensureDir(dir: string) {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
     }
 }
+
+link.action(function(nameOrUrl, linkname) {
+    let isUrl = util.GitUrlInfo.IsGitUrl(nameOrUrl);
+    let targetDir;
+    if (isUrl) {
+        let urlInfo = new util.GitUrlInfo(nameOrUrl);
+        targetDir = urlInfo.ensureTargetDir();
+        linkname = linkname || urlInfo.name;
+    } else {
+        targetDir = util.find(nameOrUrl);
+        linkname = linkname || nameOrUrl;
+    }
+    fs.symlinkSync(targetDir,linkname,'dir');
+});
 
 clone.action(function(url: string) {
     util.clone(url)
@@ -56,12 +71,12 @@ open.action(function(nameOrUrl) {
     if (isUrl) {
         let urlInfo = new util.GitUrlInfo(nameOrUrl);
         targetDir = urlInfo.ensureTargetDir();
-    }else{
+    } else {
         targetDir = util.find(nameOrUrl);
     }
     if (targetDir) {
         util.openTerm(targetDir);
-    }else{
+    } else {
         console.log(`Not found ${nameOrUrl}`);
     }
 

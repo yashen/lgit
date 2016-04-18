@@ -17,10 +17,10 @@ module util {
     }
 
     export function find(name: string): string {
-        var rootPath = ensoureRootPath();
-        var parentFolder = path.join(rootPath, "byNames");
+        let rootPath = ensoureRootPath();
+        let parentFolder = path.join(rootPath, "byNames");
         ensureDir(parentFolder);
-        var nameFolder = path.join(parentFolder, name);
+        let nameFolder = path.join(parentFolder, name);
         if (fs.existsSync(nameFolder)) {
             return nameFolder;
         }
@@ -39,14 +39,13 @@ module util {
         path: string;
         name: string;
         url: string;
-        ssh: boolean;
         rootPath: string;
 
         constructor(url: string) {
             this.url = url;
             this.rootPath = ensoureRootPath();
 
-            var test = GitUrlInfo.httpPattern.test(this.url) || GitUrlInfo.sshPatten.test(this.url);
+            let test = GitUrlInfo.httpPattern.test(this.url) || GitUrlInfo.sshPatten.test(this.url);
 
             if (test) {
                 this.host = RegExp.$2;
@@ -100,7 +99,7 @@ module util {
             (stdout) => {
                 for (let item of stdout.split("\n")) {
                     if (item.slice(0, 6) == "origin") {
-                        var parts = item.split("\t");
+                        let parts = item.split("\t");
                         return Promise.resolve(parts[1].split(" ")[0]);
                     }
                 }
@@ -110,9 +109,9 @@ module util {
     }
 
     function __createLinkByName(info: GitUrlInfo) {
-        var parentFolder = path.join(info.rootPath, "byNames");
+        let parentFolder = path.join(info.rootPath, "byNames");
         ensureDir(parentFolder);
-        var nameFolder = path.join(parentFolder, info.name);
+        let nameFolder = path.join(parentFolder, info.name);
         if (fs.existsSync(nameFolder)) {
             return;
         }
@@ -175,7 +174,7 @@ module util {
     }
 
     export function exec(command: string, args: string[], cwd: string): Promise<string> {
-        var result = child_process.spawnSync(command, args, {
+        let result = child_process.spawnSync(command, args, {
             encoding: 'utf-8',
             cwd: cwd
         });
