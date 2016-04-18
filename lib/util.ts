@@ -10,11 +10,38 @@ module util {
         }
     }
 
-    function ensoureRootPath() {
+    export function ensoureRootPath():string {
         let rootPath = path.join(os.homedir(), '.lgit');
         util.ensureDir(rootPath);
         return rootPath;
     }
+
+
+    function walkSync(parent: string, list: string[]) {
+        if (fs.existsSync(path.join(parent, '.git'))) {
+            list.push(parent);
+            return;
+        }
+
+        var dirList = fs.readdirSync(parent);
+        dirList.forEach(function(item) {
+            var subPath = path.join(parent, item);
+            let stat = fs.lstatSync(subPath);
+            if (stat.isDirectory() && !stat.isSymbolicLink()) {
+                walkSync(subPath, list);
+            }
+        });
+    }
+
+
+    export function getAllGitPath(): string[] {
+        let root = ensoureRootPath();
+        var list = [];
+        walkSync(root, list);
+        return list;
+    }
+
+
 
     export function find(name: string): string {
         let rootPath = ensoureRootPath();

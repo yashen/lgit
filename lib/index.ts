@@ -7,8 +7,20 @@ import * as util from './util';
 
 let clone = commander.command('clone <url>');
 let add = commander.command("add [path]");
-let open = commander.command("open <name>");
-let link = commander.command("link <name> [linkname]");
+let open = commander.command("open <nameOrUrl>");
+let link = commander.command("link <nameOrUrl> [linkname]");
+let list = commander.command("list");
+
+list.action(function(){
+    var rootLength = util.ensoureRootPath().length;
+    var list = util.getAllGitPath();
+    list.forEach((item)=>{
+        console.log(item.substring(rootLength+1));
+    });
+});
+
+
+
 
 function ensureDir(dir: string) {
     if (!fs.existsSync(dir)) {

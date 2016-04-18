@@ -1,29 +1,30 @@
 {
-    "name": "lgit",
-    "version": "1.0.2",
-    "description": "Organization of local git repositories",
-    "main": "lib/index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "bin": {
-        "lgit": "./bin/lgit"
-    },
-    "files": [
-        "lib/index.js",
-        "lib/util.js",
-        "bin/lgit"
-    ],
-    "author": "yashen <yashen@gmail.com>",
-    "maintainers": [
-        {
-            "name": "yashen",
-            "email": "yashen@gmail.com"
-        }
-    ],
-    "respository": "https://github.com/yashen/lgit.git",
-    "license": "ISC",
-    "dependencies": {
-        "commander": "*"
+  "name": "lgit",
+  "version": "1.0.2",
+  "description": "Organization of local git repositories",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "lgit": "./bin/lgit"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/util.js",
+    "bin/lgit"
+  ],
+  "author": "yashen <yashen@gmail.com>",
+  "maintainers": [
+    {
+      "name": "yashen",
+      "email": "yashen@gmail.com"
     }
+  ],
+  "respository": "https://github.com/yashen/lgit.git",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "*",
+    "walk": "^2.3.9"
+  }
 }
