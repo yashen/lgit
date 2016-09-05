@@ -116,7 +116,7 @@ module util {
         if (result.status == 0) {
             return Promise.resolve(true);
         } else {
-            return Promise.reject("Not a git folder");
+            return Promise.reject<boolean>("Not a git folder");
         }
     }
 
@@ -130,7 +130,7 @@ module util {
                         return Promise.resolve(parts[1].split(" ")[0]);
                     }
                 }
-                return Promise.reject("Not find origin url");
+                return Promise.reject<string>("Not find origin url");
             }
             );
     }
@@ -152,7 +152,7 @@ module util {
         let targetPath = path.join(parentPath, urlInfo.name);
 
         if (fs.existsSync(targetPath)) {
-            return Promise.reject(`folder [${targetPath}] has existed`);
+            return Promise.reject<string>(`folder [${targetPath}] has existed`);
         }
 
         localPath = path.resolve(localPath);
@@ -162,7 +162,7 @@ module util {
             cwd: parentPath
         });
         if (result.status > 0) {
-            return Promise.reject(result.error.message);
+            return Promise.reject<string>(result.error.message);
         }
 
         let serUrlArgs = ['remote', 'set-url', 'origin', url];
@@ -172,7 +172,7 @@ module util {
         });
 
         if (setUrlResult.status > 0) {
-            return Promise.reject(setUrlResult.error.message);
+            return Promise.reject<string>(setUrlResult.error.message);
         }
 
         __createLinkByName(urlInfo);
@@ -186,7 +186,7 @@ module util {
         let targetPath = path.join(parentPath, urlInfo.name);
 
         if (fs.existsSync(targetPath)) {
-            return Promise.reject(`folder [${targetPath}] has existed`);
+            return Promise.reject<string>(`folder [${targetPath}] has existed`);
         }
         let args = ['clone', url, urlInfo.name];
         let result = child_process.spawnSync("git", args, {
@@ -194,7 +194,7 @@ module util {
             cwd: parentPath
         });
         if (result.status > 0) {
-            return Promise.reject(result.error.message);
+            return Promise.reject<string>(result.error.message);
         }
         __createLinkByName(urlInfo);
         return Promise.resolve(targetPath);
@@ -207,7 +207,7 @@ module util {
         });
 
         if (result.status > 0) {
-            return Promise.reject(result);
+            return Promise.reject<string>(result);
         }
         return Promise.resolve(<string><any>result.stdout);
     }
