@@ -84,10 +84,25 @@ open.action(function(nameOrUrl) {
         let urlInfo = new util.GitUrlInfo(nameOrUrl);
         targetDir = urlInfo.ensureTargetDir();
     } else {
-        targetDir = util.find(nameOrUrl);
+        let results = util.find(nameOrUrl) ;
+
+        if(results.length == 1){
+            targetDir = results[0]
+        }
+        else if(results.length >1){
+            console.log("find multi result")
+
+            let rootLength = util.ensoureRootPath().length;
+
+            results.forEach((item)=>{
+                console.log(item.substring(rootLength+1));
+            });
+
+            return;
+        }
     }
     if (targetDir) {
-        util.openTerm(targetDir);
+        util.openFolder(targetDir);
     } else {
         console.log(`Not found ${nameOrUrl}`);
     }

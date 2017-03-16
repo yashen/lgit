@@ -41,16 +41,8 @@ module util {
         return list;
     }
 
-
-
-    export function find(name: string): string {
-        let rootPath = ensoureRootPath();
-        let parentFolder = path.join(rootPath, "byNames");
-        ensureDir(parentFolder);
-        let nameFolder = path.join(parentFolder, name);
-        if (fs.existsSync(nameFolder)) {
-            return nameFolder;
-        }
+    export function find(name: string): string[] {
+        return getAllGitPath().filter((path)=>path.endsWith(name));
     }
 
 
@@ -212,12 +204,9 @@ module util {
         return Promise.resolve(<string><any>result.stdout);
     }
 
-    export function openTerm(cwd: string) {
-        let term = process.env.COLORTERM || process.env.TERM;
-        child_process.spawn(term, [], {
-            cwd: cwd,
-            detached: true
-        });
+    export function openFolder(cwd: string) {
+        let operner = "xdg-open"
+        child_process.spawn(operner, [cwd]);
         process.exit(0);
     }
 
