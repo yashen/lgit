@@ -127,17 +127,6 @@ module util {
             );
     }
 
-    function __createLinkByName(info: GitUrlInfo) {
-        let parentFolder = path.join(info.rootPath, "byNames");
-        ensureDir(parentFolder);
-        let nameFolder = path.join(parentFolder, info.name);
-        if (fs.existsSync(nameFolder)) {
-            return;
-        }
-        fs.symlinkSync(info.ensureTargetDir(), nameFolder, 'dir');
-        console.log(`create link ${nameFolder}`);
-    }
-
     export function add(url: string, localPath: string): Promise<string> {
         let urlInfo = new GitUrlInfo(url);
         let parentPath = urlInfo.ensureParentDir();
@@ -167,8 +156,6 @@ module util {
             return Promise.reject<string>(setUrlResult.error.message);
         }
 
-        __createLinkByName(urlInfo);
-
         return Promise.resolve(targetPath);
     }
 
@@ -188,7 +175,6 @@ module util {
         if (result.status > 0) {
             return Promise.reject<string>(result.error.message);
         }
-        __createLinkByName(urlInfo);
         return Promise.resolve(targetPath);
     }
 

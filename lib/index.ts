@@ -8,7 +8,6 @@ import * as util from './util';
 let clone = commander.command('clone <url>');
 let add = commander.command("add [path]");
 let open = commander.command("open <nameOrUrl>");
-let link = commander.command("link <nameOrUrl> [linkname]");
 let list = commander.command("list");
 
 list.action(function(){
@@ -19,28 +18,11 @@ list.action(function(){
     });
 });
 
-
-
-
 function ensureDir(dir: string) {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
     }
 }
-
-link.action(function(nameOrUrl, linkname) {
-    let isUrl = util.GitUrlInfo.IsGitUrl(nameOrUrl);
-    let targetDir;
-    if (isUrl) {
-        let urlInfo = new util.GitUrlInfo(nameOrUrl);
-        targetDir = urlInfo.ensureTargetDir();
-        linkname = linkname || urlInfo.name;
-    } else {
-        targetDir = util.find(nameOrUrl);
-        linkname = linkname || nameOrUrl;
-    }
-    fs.symlinkSync(targetDir,linkname,'dir');
-});
 
 clone.action(function(url: string) {
     util.clone(url)
