@@ -8,6 +8,7 @@ import * as util from './util';
 let clone = commander.command('clone <url>');
 let add = commander.command("add [path]");
 let open = commander.command("open <nameOrUrl>");
+open.option('-o,--open',"Open folder,default echo path")
 let list = commander.command("list");
 
 list.action(function(){
@@ -84,7 +85,11 @@ open.action(function(nameOrUrl) {
         }
     }
     if (targetDir) {
-        util.openFolder(targetDir);
+        if(open.opts().open){
+            util.openFolder(targetDir);
+        }else{
+            console.log(targetDir);
+        }
     } else {
         console.log(`Not found ${nameOrUrl}`);
     }

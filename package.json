@@ -1,6 +1,6 @@
 {
   "name": "lgit",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Organization of local git repositories",
   "main": "lib/index.js",
   "scripts": {
@@ -24,7 +24,6 @@
   "respository": "https://github.com/yashen/lgit.git",
   "license": "ISC",
   "dependencies": {
-    "commander": "*",
-    "walk": "^2.3.9"
+    "commander": "*"
   }
 }
